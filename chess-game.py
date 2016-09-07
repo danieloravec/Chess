@@ -1,3 +1,4 @@
+import random
 try:
     from tkinter import *
 except ImportError:
@@ -5,6 +6,7 @@ except ImportError:
 
 
 class Game:
+
     def __init__(self):
         self.root = Tk()
         self.clicks = 0
@@ -45,9 +47,39 @@ class Game:
         self.clicks += 1
 
 
+class Hero:
+
+    def __init__(self, pos_x, pos_y, field_width, board_width):
+        self.x = pos_x
+        self.y = pos_y
+        self.field_side = field_width
+        self.board_side = board_width
+
+    def move_random(self):
+        direction = random.randint(0, 4)
+        # Movement right
+        if direction == 0 and self.x + self.field_side <= self.board_side:
+            self.x += self.field_side
+        # Movement left
+        elif direction == 1 and self.x - self.field_side > 0:
+            self.x -= self.field_side
+        # Movement up
+        elif direction == 2 and self.y - self.field_side > 0:
+            self.y -= self.field_side
+        # Movement down
+        elif direction == 3 and self.y + self.field_side <= self.board_side:
+            self.y += self.field_side
+
+
+
+
+
+
+
+
+
 chessboard = Game()
 
 chessboard.draw_chessboard("black")
-chessboard.canvas.bind("<Button-1>", chessboard.change_chessboard)
 
 chessboard.root.mainloop()
