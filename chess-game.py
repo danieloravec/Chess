@@ -56,30 +56,36 @@ class Hero:
         self.board_side = board_width
 
     def move_random(self):
+        print(self.x, self.board_side, self.field_side)
         direction = random.randint(0, 4)
+        print(direction)
         # Movement right
         if direction == 0 and self.x + self.field_side <= self.board_side:
+            print("in")
             self.x += self.field_side
         # Movement left
         elif direction == 1 and self.x - self.field_side > 0:
+            print("in")
+
             self.x -= self.field_side
         # Movement up
         elif direction == 2 and self.y - self.field_side > 0:
+            print("in")
             self.y -= self.field_side
         # Movement down
         elif direction == 3 and self.y + self.field_side <= self.board_side:
+            print("in")
             self.y += self.field_side
+        print(self.x)
 
 
-
-
-
-
-
-
+def draw_hero(pos):
+    print("drawing")
+    hero.move_random()
+    chessboard.canvas.create_rectangle(hero.x, hero.y, 32, 32, fill='red')
 
 chessboard = Game()
-
+hero = Hero(0, 0, 32, 256)
 chessboard.draw_chessboard("black")
-
+chessboard.canvas.bind("<Button-1>", draw_hero)
 chessboard.root.mainloop()
