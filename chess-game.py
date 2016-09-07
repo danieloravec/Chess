@@ -50,8 +50,8 @@ class Game:
 class Hero:
 
     def __init__(self, pos_x, pos_y, field_width, board_width):
-        self.x = pos_x
-        self.y = pos_y
+        self.x = board_width / 2
+        self.y = pos_y / 2
         self.field_side = field_width
         self.board_side = board_width
 
