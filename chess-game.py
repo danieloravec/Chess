@@ -13,6 +13,7 @@ settings.init()
 class Game:
 
     def __init__(self):
+        self.field_width = 32
         self.clicks = 0
         self.board_fields_positions = {}
         self.starting_positions = {'white': {}, 'black': {}}
@@ -59,7 +60,12 @@ class Game:
         number = 1
         for i in range(8):
             for j in range(8):
-                self.board_fields_positions.update({(letter + str(number)): [act_x, act_y]})
+                self.board_fields_positions.update(
+                    {(letter + str(number)): [
+                        act_x,
+                        act_y,
+                        1 if letter == 'A' or letter == 'B' or letter == 'G' or letter == 'H' else 0
+                    ]})
                 if letter == 'A' or letter == 'B':
                     self.starting_positions['white'].update({(letter + str(number)): [act_x, act_y]})
                 elif letter == 'G' or letter == 'H':
@@ -84,7 +90,6 @@ class Game:
             i += 1
             cur_hero.draw_hero()
 
-
     def move_all(self, event = None):
         # TODO rewrite this using map()
         for cur_hero in self.all_heroes:
@@ -95,7 +100,28 @@ class Game:
         for cur_hero in self.all_heroes:
             if [cur_hero.x, cur_hero.y] == searched_coords:
                 cur_hero.draw_hero()
+        self.update_figures_counter()
 
+    def update_figures_counter(self):
+        coord_list = []
+        for cur_hero in self.all_heroes:
+            coord_list.append([cur_hero.x, cur_hero.y])
+        for key in self.board_fields_positions.keys():
+            self.board_fields_positions[key][2] = 0
+        for key, value in self.board_fields_positions.items():
+            for coords in coord_list:
+                if value[0] == coords[0] and value[1] == coords[1]:
+                    self.board_fields_positions[key][2] += 1
+        settings.canvas.delete('current_text')
+        for key, value in self.board_fields_positions.items():
+            settings.canvas.create_text(
+                value[0] + self.field_width // 2,
+                value[1] + self.field_width // 2,
+                text=value[2],
+                fill='purple',
+                tag='current_text',
+                font=('calibri', self.field_width // 2)
+            )
 
 chessboard = Game()
 chessboard.draw_chessboard("black")
