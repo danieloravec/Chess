@@ -11,11 +11,11 @@ settings.init()
 
 
 class Game:
-    starting_positions = {'white': {}, 'black': {}}
 
     def __init__(self):
         self.clicks = 0
         self.board_fields_positions = {}
+        self.starting_positions = {'white': {}, 'black': {}}
         self.mark_board_fields()
         self.all_heroes = []
 
@@ -75,24 +75,30 @@ class Game:
         for figures_color in self.starting_positions:
             for key in sorted(self.starting_positions[figures_color]):
                 self.all_heroes.append(Hero(
-                    self.starting_positions[figures_color][key][0],
+                    self.starting_positions[figures_color].get(key)[0],
                     self.starting_positions[figures_color][key][1],
                     32, 256)
                 )
-            # for h in self.all_heroes:
-            #     print(str(h.x) + " : " + str(h.y))
-            for cur_hero in self.all_heroes:
-                cur_hero.draw_hero()
+        i = 0
+        for cur_hero in self.all_heroes:
+            i += 1
+            cur_hero.draw_hero()
 
 
     def move_all(self, event = None):
-        # TODO rewrite this to use map()
+        # TODO rewrite this using map()
         for cur_hero in self.all_heroes:
             cur_hero.draw_hero()
+
+    def move_clicked(self, click_pos):
+        searched_coords = [click_pos.x - (click_pos.x % 32), click_pos.y - (click_pos.y % 32)]
+        for cur_hero in self.all_heroes:
+            if [cur_hero.x, cur_hero.y] == searched_coords:
+                cur_hero.draw_hero()
 
 
 chessboard = Game()
 chessboard.draw_chessboard("black")
 chessboard.chess_start()
-settings.canvas.bind("<Button-1>", chessboard.move_all)
+settings.canvas.bind("<Button-1>", chessboard.move_clicked)
 settings.root.mainloop()

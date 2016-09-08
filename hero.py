@@ -15,7 +15,7 @@ class Hero:
 
     def move_random(self):
         if self.hero is not None:
-            direction = random.randint(0, 4)
+            direction = random.randint(0, 3)
             # Movement right
             if direction == 0 and self.x + self.field_side < self.board_side:
                 self.x += self.field_side
