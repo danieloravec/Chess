@@ -4,7 +4,7 @@ except ImportError:
     from Tkinter import *
 
 import settings
-from hero import Hero
+from hero import *
 
 
 class Game:
@@ -122,9 +122,15 @@ class Game:
                 font=('calibri', self.field_width // 2)
             )
 
+
+# Main
 settings.init(800, 800)
 chessboard = Game(int(settings.canvas.cget('width')) // 8)
 chessboard.draw_chessboard("black")
 chessboard.chess_start()
+# fm = Pawn(400, 400, 100, 800)
+# settings.canvas.bind("<Button-3>", fm.draw_hero)
+kn = Knight(400, 400, 100, 800)
+settings.canvas.bind("<Button-3>", kn.draw_hero)
 settings.canvas.bind("<Button-1>", chessboard.move_clicked)
 settings.root.mainloop()
