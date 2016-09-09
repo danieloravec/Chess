@@ -146,7 +146,7 @@ class Game:
         searched_coords = [click_pos.x - (click_pos.x % self.field_width), click_pos.y - (click_pos.y % self.field_width)]
         for cur_hero in self.all_heroes:
             if [cur_hero.x, cur_hero.y] == searched_coords:
-                # TODO update pieces after calling move_if_possible()
+                # TODO update counter after calling move_if_possible()
                 settings.canvas.bind('<Button-3>', lambda event, current_hero=cur_hero: self.move_if_possible(event, current_hero))
                 self.update_figures_counter()
 
@@ -187,16 +187,195 @@ class Game:
                                 self.all_heroes.remove(cur_hero)
                                 hero_to_move.draw_hero()
                             return
-        if hero_to_move.color == 'wheat':
-            if destination == [hero_to_move.x, hero_to_move.y + self.field_width]:
-                hero_to_move.y += self.field_width
+                    # Am I rook?
+                    elif piece_type == 'Rook':
+                        # I want to go forward or back
+                        if destination[0] == hero_to_move.x:
+                            # Do I want to go back?
+                            if destination[1] > hero_to_move.y:
+                                # Is there any piece in my way?
+                                for block_piece in self.all_heroes:
+                                    if destination[0] == block_piece.x and destination[1] > block_piece.y > hero_to_move.y:
+                                        return
+                                # Execute him!
+                                hero_to_move.y = destination[1]
+                                settings.canvas.delete(cur_hero.hero)
+                                self.all_heroes.remove(cur_hero)
+                                hero_to_move.draw_hero()
+                                return
+                            # I want to go forward.
+                            else:
+                                # Is there any piece in my way?
+                                for block_piece in self.all_heroes:
+                                    if destination[0] == block_piece.x and destination[1] < block_piece.y < hero_to_move.y:
+                                        return
+                                # Execute him!
+                                hero_to_move.y = destination[1]
+                                settings.canvas.delete(cur_hero.hero)
+                                self.all_heroes.remove(cur_hero)
+                                hero_to_move.draw_hero()
+                                return
+                        # I want to go left or right.
+                        elif destination[1] == hero_to_move.y:
+                            # Do I want to go left?
+                            if destination[0] < hero_to_move.x:
+                                # Is there any piece in my way?
+                                for block_piece in self.all_heroes:
+                                    if destination[1] == block_piece.y and destination[0] < block_piece.x < hero_to_move.x:
+                                        return
+                                # Execute him!
+                                hero_to_move.x = destination[0]
+                                settings.canvas.delete(cur_hero.hero)
+                                self.all_heroes.remove(cur_hero)
+                                hero_to_move.draw_hero()
+                                return
+                            # I want to go right.
+                            else:
+                                # Is there any piece in my way?
+                                for block_piece in self.all_heroes:
+                                    if destination[1] == block_piece.y and destination[0] > block_piece.x > hero_to_move.x:
+                                        return
+                                # Execute him!
+                                hero_to_move.x = destination[0]
+                                settings.canvas.delete(cur_hero.hero)
+                                self.all_heroes.remove(cur_hero)
+                                hero_to_move.draw_hero()
+                                return
+                        # Forbidden field for rook
+                        else:
+                            return
+                    # Am I knight?
+                    elif piece_type == 'Knight':
+                        # Forward-right motion
+                        if (destination == [hero_to_move.x + self.field_width, hero_to_move.y - 2 * self.field_width] or
+                                 destination == [hero_to_move.x - self.field_width, hero_to_move.y - 2 * self.field_width] or
+                                 destination == [hero_to_move.x - 2 * self.field_width, hero_to_move.y - self.field_width] or
+                                 destination == [hero_to_move.x - 2 * self.field_width, hero_to_move.y + self.field_width] or
+                                 destination == [hero_to_move.x - self.field_width, hero_to_move.y + 2 * self.field_width] or
+                                 destination == [hero_to_move.x + self.field_width, hero_to_move.y + 2 * self.field_width] or
+                                 destination == [hero_to_move.x + 2 * self.field_width, hero_to_move.y + self.field_width] or
+                                 destination == [hero_to_move.x + 2 * self.field_width, hero_to_move.y - self.field_width]):
+                            #Execute him!
+                            hero_to_move.x = destination[0]
+                            hero_to_move.y = destination[1]
+                            settings.canvas.delete(cur_hero.hero)
+                            self.all_heroes.remove(cur_hero)
+                            hero_to_move.draw_hero()
+                            return
+                    # Am I bishop?
+                    elif piece_type == 'Bishop':
+                        temp_x = hero_to_move.x
+                        temp_y = hero_to_move.y
+                        # Do I want to go to rigth?
+                        if hero_to_move.x < destination[0]:
+                            # Do I want to go forward?
+                            if hero_to_move.y > destination[1]:
+                                # Is there other piece in my way?
+                                temp_x += self.field_width
+                                temp_y -= self.field_width
+                                while temp_x < destination[0] and temp_y > destination[1]:
+                                    for block_piece in self.all_heroes:
+                                        if block_piece.x == temp_x:
+                                            if block_piece.y == temp_y:
+                                                return
+                                    temp_x += self.field_width
+                                    temp_y -= self.field_width
+                                # Can I reach him?
+                                if destination == [temp_x, temp_y]:
+                                    # Execute him!
+                                    hero_to_move.x = destination[0]
+                                    hero_to_move.y = destination[1]
+                                    settings.canvas.delete(cur_hero.hero)
+                                    self.all_heroes.remove(cur_hero)
+                                    hero_to_move.draw_hero()
+                                    return
+
+
+
+        # Am I pawn?
+        if piece_type == 'Pawn':
+            if hero_to_move.color == 'wheat':
+                if destination == [hero_to_move.x, hero_to_move.y + self.field_width]:
+                    hero_to_move.y += self.field_width
+                elif hero_to_move.y == self.field_width and destination == [hero_to_move.x, hero_to_move.y + 2 * self.field_width]:
+                    hero_to_move.y += 2 * self.field_width
                 hero_to_move.draw_hero()
-            return
-        else:
-            if destination == [hero_to_move.x, hero_to_move.y - self.field_width]:
-                hero_to_move.y -= self.field_width
+                return
+            else:
+                if destination == [hero_to_move.x, hero_to_move.y - self.field_width]:
+                    hero_to_move.y -= self.field_width
+                elif hero_to_move.y == 6 * self.field_width and destination == [hero_to_move.x, hero_to_move.y - 2 * self.field_width]:
+                    hero_to_move.y -= 2 * self.field_width
                 hero_to_move.draw_hero()
-            return
+                return
+        # Am I rook?
+        elif piece_type == 'Rook':
+            # I want to go forward or back
+            if destination[0] == hero_to_move.x:
+                # Do I want to go back?
+                if destination[1] > hero_to_move.y:
+                    # Is there any piece in my way?
+                    for block_piece in self.all_heroes:
+                        if destination[0] == block_piece.x and destination[1] > block_piece.y > hero_to_move.y:
+                            return
+                    hero_to_move.y = destination[1]
+                    hero_to_move.draw_hero()
+                    return
+                # I want to go forward.
+                else:
+                    # Is there any piece in my way?
+                    for block_piece in self.all_heroes:
+                        if destination[0] == block_piece.x and destination[1] < block_piece.y < hero_to_move.y:
+                            return
+                    hero_to_move.y = destination[1]
+                    hero_to_move.draw_hero()
+                    return
+            # I want to go left or right.
+            elif destination[1] == hero_to_move.y:
+                # Do I want to go left?
+                if destination[0] < hero_to_move.x:
+                    # Is there any piece in my way?
+                    for block_piece in self.all_heroes:
+                        if destination[1] == block_piece.y and destination[0] < block_piece.x < hero_to_move.x:
+                            return
+                    hero_to_move.x = destination[0]
+                    hero_to_move.draw_hero()
+                    return
+                # I want to go right.
+                else:
+                    # Is there any piece in my way?
+                    for block_piece in self.all_heroes:
+                        if destination[1] == block_piece.y and destination[0] > block_piece.x > hero_to_move.x:
+                            return
+                    hero_to_move.x = destination[0]
+                    hero_to_move.draw_hero()
+                    return
+            # Forbidden field for rook
+            else:
+                return
+        # Am I knight?
+        elif piece_type == 'Knight':
+            # Forward-right motion
+            if (destination == [hero_to_move.x + self.field_width, hero_to_move.y - 2 * self.field_width] or
+                        destination == [hero_to_move.x - self.field_width, hero_to_move.y - 2 * self.field_width] or
+                        destination == [hero_to_move.x - 2 * self.field_width, hero_to_move.y - self.field_width] or
+                        destination == [hero_to_move.x - 2 * self.field_width, hero_to_move.y + self.field_width] or
+                        destination == [hero_to_move.x - self.field_width, hero_to_move.y + 2 * self.field_width] or
+                        destination == [hero_to_move.x + self.field_width, hero_to_move.y + 2 * self.field_width] or
+                        destination == [hero_to_move.x + 2 * self.field_width, hero_to_move.y + self.field_width] or
+                        destination == [hero_to_move.x + 2 * self.field_width, hero_to_move.y - self.field_width]):
+                hero_to_move.x = destination[0]
+                hero_to_move.y = destination[1]
+                hero_to_move.draw_hero()
+                return
+
+
+
+
+
+
+
+
 
     def update_figures_counter(self):
         coord_list = []
