@@ -78,14 +78,62 @@ class Game:
     def chess_start(self):
         for figures_color in self.starting_positions:
             for key in sorted(self.starting_positions[figures_color]):
-                self.all_heroes.append(Hero(
-                    self.starting_positions[figures_color].get(key)[0],
-                    self.starting_positions[figures_color][key][1],
-                    100, 800)
-                )
-        i = 0
+                if 'B' in key or 'G' in key:
+                    self.all_heroes.append(
+                        Pawn(
+                            self.starting_positions[figures_color][key][0],
+                            self.starting_positions[figures_color][key][1],
+                            'wheat' if 'A' in key or 'B' in key else 'snow4',
+                            100, 800
+                        )
+                    )
+                else:
+                    if '1' in key or '8' in key:
+                        self.all_heroes.append(
+                            Rook(
+                                self.starting_positions[figures_color][key][0],
+                                self.starting_positions[figures_color][key][1],
+                                'wheat' if 'A' in key or 'B' in key else 'snow4',
+                                100, 800
+                            )
+                        )
+                    elif '2' in key or '7' in key:
+                        self.all_heroes.append(
+                            Knight(
+                                self.starting_positions[figures_color][key][0],
+                                self.starting_positions[figures_color][key][1],
+                                'wheat' if 'A' in key or 'B' in key else 'snow4',
+                                100, 800
+                            )
+                        )
+                    elif '3' in key or '6' in key:
+                        self.all_heroes.append(
+                            Bishop(
+                                self.starting_positions[figures_color][key][0],
+                                self.starting_positions[figures_color][key][1],
+                                'wheat' if 'A' in key or 'B' in key else 'snow4',
+                                100, 800
+                            )
+                        )
+                    elif '4' in key:
+                        self.all_heroes.append(
+                            Queen(
+                                self.starting_positions[figures_color][key][0],
+                                self.starting_positions[figures_color][key][1],
+                                'wheat' if 'A' in key or 'B' in key else 'snow4',
+                                100, 800
+                            )
+                        )
+                    else:
+                        self.all_heroes.append(
+                            King(
+                                self.starting_positions[figures_color][key][0],
+                                self.starting_positions[figures_color][key][1],
+                                'wheat' if 'A' in key or 'B' in key else 'snow4',
+                                100, 800
+                            )
+                        )
         for cur_hero in self.all_heroes:
-            i += 1
             cur_hero.draw_hero()
         self.update_figures_counter()
 
@@ -98,8 +146,57 @@ class Game:
         searched_coords = [click_pos.x - (click_pos.x % self.field_width), click_pos.y - (click_pos.y % self.field_width)]
         for cur_hero in self.all_heroes:
             if [cur_hero.x, cur_hero.y] == searched_coords:
-                cur_hero.draw_hero()
-        self.update_figures_counter()
+                # TODO update pieces after calling move_if_possible()
+                settings.canvas.bind('<Button-3>', lambda event, current_hero=cur_hero: self.move_if_possible(event, current_hero))
+                self.update_figures_counter()
+
+    def move_if_possible(self, event, hero_to_move):
+        piece_type = hero_to_move.__class__.__name__
+        destination = [event.x - (event.x % self.field_width), event.y - (event.y % self.field_width)]
+        # Check, if there is anybody on destination field
+        for cur_hero in self.all_heroes:
+            # Is there a piece already?
+            if [cur_hero.x, cur_hero.y] == destination:
+                # I can't execute my teammate
+                if cur_hero.color == hero_to_move.color:
+                    return
+                # I want to execute him, but can I?
+                else:
+                    # Am I pawn?
+                    if piece_type == 'Pawn':
+                        # Am I white? If so, I can only move down.
+                        if hero_to_move.color == 'wheat':
+                            # Can I get him?
+                            if (destination == [hero_to_move.x + self.field_width, hero_to_move.y + self.field_width]
+                                    or destination == [hero_to_move.x - self.field_width, hero_to_move.y + self.field_width]):
+                                # Execute him!
+                                hero_to_move.x = destination[0]
+                                hero_to_move.y = destination[1]
+                                settings.canvas.delete(cur_hero.hero)
+                                self.all_heroes.remove(cur_hero)
+                                hero_to_move.draw_hero()
+                            return
+                        # I am black, so I can only move up.
+                        else:
+                            if (destination == [hero_to_move.x + self.field_width, hero_to_move.y - self.field_width]
+                                    or destination == [hero_to_move.x - self.field_width, hero_to_move.y - self.field_width]):
+                                # Execute him!
+                                hero_to_move.x = destination[0]
+                                hero_to_move.y = destination[1]
+                                settings.canvas.delete(cur_hero.hero)
+                                self.all_heroes.remove(cur_hero)
+                                hero_to_move.draw_hero()
+                            return
+        if hero_to_move.color == 'wheat':
+            if destination == [hero_to_move.x, hero_to_move.y + self.field_width]:
+                hero_to_move.y += self.field_width
+                hero_to_move.draw_hero()
+            return
+        else:
+            if destination == [hero_to_move.x, hero_to_move.y - self.field_width]:
+                hero_to_move.y -= self.field_width
+                hero_to_move.draw_hero()
+            return
 
     def update_figures_counter(self):
         coord_list = []
@@ -128,9 +225,5 @@ settings.init(800, 800)
 chessboard = Game(int(settings.canvas.cget('width')) // 8)
 chessboard.draw_chessboard("black")
 chessboard.chess_start()
-# fm = Pawn(400, 400, 100, 800)
-# settings.canvas.bind("<Button-3>", fm.draw_hero)
-kn = Knight(400, 400, 100, 800)
-settings.canvas.bind("<Button-3>", kn.draw_hero)
 settings.canvas.bind("<Button-1>", chessboard.move_clicked)
 settings.root.mainloop()
