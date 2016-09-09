@@ -4,9 +4,9 @@ except ImportError:
     from Tkinter import *
 
 
-def init():
+def init(canvas_width, canvas_height):
     global root
     root = Tk()
     global canvas
-    canvas = Canvas(root, width=256, height=256)
+    canvas = Canvas(root, width=canvas_width, height=canvas_height)
     canvas.pack()

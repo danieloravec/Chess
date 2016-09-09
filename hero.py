@@ -40,4 +40,8 @@ class Hero:
     def draw_hero(self, event = None):
         self.move_random()
         if self.hero is None:
-            self.hero = settings.canvas.create_rectangle(self.x, self.y, self.x + 32, self.y + 32, fill='red')
+            self.hero = settings.canvas.create_oval(
+                self.x, self.y,
+                self.x + self.field_side, self.y + self.field_side,
+                fill='red'
+            )
