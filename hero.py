@@ -75,6 +75,9 @@ class Pawn(Hero):
 
 class Rook(Hero):
     def move(self, prey_coords, all_heroes):
+        self.move_rook(prey_coords, all_heroes)
+
+    def move_rook(self, prey_coords, all_heroes):
         prey = self.get_prey(prey_coords, all_heroes)
         if prey is False:
             return
@@ -124,8 +127,11 @@ class Rook(Hero):
             if cur_hero.x == prey_coords[0] and cur_hero.y == prey_coords[1]:
                 prey = cur_hero
                 break
-        if (prey_coords[0] == self.x and prey_coords[1] == self.y) or cur_hero.color == self.color:
-            prey = False
+        if prey is not None:
+            if ((prey_coords[0] == self.x and prey_coords[1] == self.y)
+                    or cur_hero.color == self.color
+                    or (self.x != cur_hero.x and self.y != cur_hero.y)):
+                prey = False
         return prey
 
 
@@ -162,6 +168,9 @@ class Knight(Hero):
 
 class Bishop(Hero):
     def move(self, prey_coords, all_heroes):
+        self.move_bishop(prey_coords, all_heroes)
+
+    def move_bishop(self, prey_coords, all_heroes):
         pass
         prey = self.get_prey(prey_coords, all_heroes)
         if self.is_obstacle(prey_coords, all_heroes):
