@@ -124,7 +124,7 @@ class Rook(Hero):
             if cur_hero.x == prey_coords[0] and cur_hero.y == prey_coords[1]:
                 prey = cur_hero
                 break
-        if (prey_coords[0] != self.x and prey_coords[1] != self.y) or cur_hero.color == self.color:
+        if (prey_coords[0] == self.x and prey_coords[1] == self.y) or cur_hero.color == self.color:
             prey = False
         return prey
 
@@ -161,8 +161,65 @@ class Knight(Hero):
 
 
 class Bishop(Hero):
-    def move(self):
+    def move(self, prey_coords, all_heroes):
         pass
+        prey = self.get_prey(prey_coords, all_heroes)
+        if self.is_obstacle(prey_coords, all_heroes):
+            return
+        else:
+            if prey is False:
+                return
+            elif prey is None:
+                self.x = prey_coords[0]
+                self.y = prey_coords[1]
+            else:
+                self.execute(prey, all_heroes)
+        self.draw_hero()
+
+    def is_obstacle(self, prey_coords, all_heroes):
+        target_x = []
+        target_y = []
+        temp_x = self.x
+        temp_y = self.y
+        if temp_x < prey_coords[0]:
+            while temp_x < prey_coords[0]:
+                temp_x += self.field_side
+                target_x.append(temp_x)
+        else:
+            while temp_x > prey_coords[0]:
+                temp_x -= self.field_side
+                target_x.append(temp_x)
+        if temp_y < prey_coords[1]:
+            while temp_y < prey_coords[1]:
+                temp_y += self.field_side
+                target_y.append(temp_y)
+        else:
+            while temp_y > prey_coords[1]:
+                temp_y -= self.field_side
+                target_y.append(temp_y)
+        if len(target_x) == len(target_y) > 0:
+            target_x.pop()
+            target_y.pop()
+        else:
+            return True
+        for block_piece in all_heroes:
+            for i in range(len(target_x)):
+                if block_piece is self:
+                    continue
+                if (block_piece.x, block_piece.y) == (target_x[i], target_y[i]):
+                    return True
+        return False
+
+    def get_prey(self, prey_coords, all_heroes):
+        prey = None
+        for cur_hero in all_heroes:
+            if prey_coords == [cur_hero.x, cur_hero.y]:
+                prey = cur_hero
+                break
+        if prey is not None:
+            if (prey_coords[0] == self.x and prey_coords[1] == self.y) or prey.color == self.color:
+                prey = False
+        return prey
 
 
 class Queen(Hero):

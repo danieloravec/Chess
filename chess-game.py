@@ -134,7 +134,6 @@ class Game:
             if [cur_hero.x, cur_hero.y] == searched_coords:
                 settings.canvas.bind('<Button-3>', lambda event, current_hero=cur_hero: self.move_if_possible(event, current_hero))
 
-    # TODO finish this
     def move_if_possible(self, event, hero_to_move):
         prey_coords = [event.x - (event.x % self.field_width), event.y - (event.y % self.field_width)]
         hero_to_move.move(prey_coords, self.all_heroes)
