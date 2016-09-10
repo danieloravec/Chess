@@ -62,63 +62,71 @@ class Pawn(Hero):
     def get_prey(self, prey_coords, all_heroes):
         prey = None
         for cur_hero in all_heroes:
-            if cur_hero.x == prey_coords[0] and cur_hero.y == prey_coords[1]:
+            if [cur_hero.x, cur_hero.y] == prey_coords:
                 prey = cur_hero
                 break
         if prey is not None:
-            if self.color == 'wheat':
-                if abs(self.x - prey.x) != self.field_side or prey.y != self.y + self.field_side or prey.color == self.color:
-                    prey = False
-            else:
-                if abs(self.x - prey.x) != self.field_side or prey.y != self.y - self.field_side or prey.color == self.color:
-                    prey = False
+            if (abs(self.x - prey.x) != self.field_side
+                    or prey.y != (self.y + self.field_side if self.color == 'wheat' else self.y - self.field_side)
+                    or prey.color == self.color):
+                prey = False
         return prey
 
 
 class Rook(Hero):
     def move(self, prey_coords, all_heroes):
         prey = self.get_prey(prey_coords, all_heroes)
-        # I want to go forward or back
-        if prey_coords[0] == self.x:
-            # Do I want to go back?
-            if prey_coords[1] > self.y:
-                # Is there any piece in my way?
-                for block_piece in self.all_heroes:
-                    if prey_coords[0] == block_piece.x and prey_coords[1] > block_piece.y > self.y:
-                        return
-                self.y = prey_coords[1]
-            # I want to go forward.
-            else:
-                # Is there any piece in my way?
-                for block_piece in self.all_heroes:
-                    if prey_coords[0] == block_piece.x and prey_coords[1] < block_piece.y < self.y:
-                        return
-                self.y = prey_coords[1]
-        # I want to go left or right.
-        elif prey_coords[1] == self.y:
-            # Do I want to go left?
-            if prey_coords[0] < self.x:
-                # Is there any piece in my way?
-                for block_piece in self.all_heroes:
-                    if prey_coords[1] == block_piece.y and prey_coords[0] < block_piece.x < self.x:
-                        return
-                self.x = prey_coords[0]
-                self.draw_hero()
-            # I want to go right.
-            else:
-                # Is there any piece in my way?
-                for block_piece in self.all_heroes:
-                    if prey_coords[1] == block_piece.y and prey_coords[0] > block_piece.x > self.x:
-                        return
-                self.x = prey_coords[0]
-                self.draw_hero()
-        # Forbidden field for rook
-        else:
+        if prey is False:
             return
-        if prey is not None:
-            self.execute(prey, all_heroes)
+        if not prey:
+            if prey_coords[0] == self.x:
+                if prey_coords[1] > self.y:
+                    if not self.is_obstacle(prey_coords, all_heroes):
+                        self.y = prey_coords[1]
+                else:
+                    if not self.is_obstacle(prey_coords, all_heroes):
+                        self.y = prey_coords[1]
+            elif prey_coords[1] == self.y:
+                if prey_coords[0] < self.x:
+                    if not self.is_obstacle(prey_coords, all_heroes):
+                        self.x = prey_coords[0]
+                else:
+                    if not self.is_obstacle(prey_coords, all_heroes):
+                        self.x = prey_coords[0]
+        self.draw_hero()
+        if prey:
+            if not self.is_obstacle(prey_coords, all_heroes):
+                self.execute(prey, all_heroes)
         self.draw_hero()
         return
+
+    def is_obstacle(self, prey_coords, all_heroes):
+        for block_piece in all_heroes:
+            if block_piece.x == self.x == prey_coords[0]:
+                if prey_coords[1] > self.y:
+                    if self.y < block_piece.y < prey_coords[1]:
+                        return True
+                else:
+                    if prey_coords[1] < block_piece.y < self.y:
+                        return True
+            elif block_piece.y == self.y == prey_coords[1]:
+                if prey_coords[0] > self.x:
+                    if prey_coords[0] > block_piece.x > self.x:
+                        return True
+                else:
+                    if prey_coords[0] < block_piece.x < self.x:
+                        return True
+        return False
+
+    def get_prey(self, prey_coords, all_heroes):
+        prey = None
+        for cur_hero in all_heroes:
+            if cur_hero.x == prey_coords[0] and cur_hero.y == prey_coords[1]:
+                prey = cur_hero
+                break
+        if (prey_coords[0] != self.x and prey_coords[1] != self.y) or cur_hero.color == self.color:
+            prey = False
+        return prey
 
 
 class Knight(Hero):
