@@ -43,13 +43,15 @@ class Hero:
 class Pawn(Hero):
     def move(self, prey_coords, all_heroes):
         prey = self.get_prey(prey_coords, all_heroes)
+        if prey is False:
+            return
         if self.color == 'wheat':
-            if prey_coords == [self.x, self.y + self.field_side]:
+            if prey_coords == [self.x, self.y + self.field_side] and prey is None:
                 self.y += self.field_side
             elif self.y == self.field_side and prey_coords == [self.x, self.y + 2 * self.field_side]:
                 self.y += 2 * self.field_side
         else:
-            if prey_coords == [self.x, self.y - self.field_side]:
+            if prey_coords == [self.x, self.y - self.field_side] and prey is None:
                 self.y -= self.field_side
             elif self.y == 6 * self.field_side and prey_coords == [self.x, self.y - 2 * self.field_side]:
                 self.y -= 2 * self.field_side
@@ -65,11 +67,11 @@ class Pawn(Hero):
                 break
         if prey is not None:
             if self.color == 'wheat':
-                if not (prey.y == self.y + self.field_side and (prey.x == self.x + self.field_side or prey.x == self.x - self.field_side)):
-                    prey = None
+                if abs(self.x - prey.x) != self.field_side or prey.y != self.y + self.field_side or prey.color == self.color:
+                    prey = False
             else:
-                if not (prey.y == self.y - self.field_side and (prey.x == self.x + self.field_side or prey.x == self.x - self.field_side)):
-                    prey = None
+                if abs(self.x - prey.x) != self.field_side or prey.y != self.y - self.field_side or prey.color == self.color:
+                    prey = False
         return prey
 
 
