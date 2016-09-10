@@ -132,20 +132,32 @@ class Rook(Hero):
 class Knight(Hero):
     def move(self, prey_coords, all_heroes):
         prey = self.get_prey(prey_coords, all_heroes)
-        if (prey_coords == [self.x + self.field_width, self.y - 2 * self.field_width] or
-                    prey_coords == [self.x - self.field_width, self.y - 2 * self.field_width] or
-                    prey_coords == [self.x - 2 * self.field_width, self.y - self.field_width] or
-                    prey_coords == [self.x - 2 * self.field_width, self.y + self.field_width] or
-                    prey_coords == [self.x - self.field_width, self.y + 2 * self.field_width] or
-                    prey_coords == [self.x + self.field_width, self.y + 2 * self.field_width] or
-                    prey_coords == [self.x + 2 * self.field_width, self.y + self.field_width] or
-                    prey_coords == [self.x + 2 * self.field_width, self.y - self.field_width]):
+        if prey is False:
+            return
+        if (prey_coords == [self.x + self.field_side, self.y - 2 * self.field_side] or
+                    prey_coords == [self.x - self.field_side, self.y - 2 * self.field_side] or
+                    prey_coords == [self.x - 2 * self.field_side, self.y - self.field_side] or
+                    prey_coords == [self.x - 2 * self.field_side, self.y + self.field_side] or
+                    prey_coords == [self.x - self.field_side, self.y + 2 * self.field_side] or
+                    prey_coords == [self.x + self.field_side, self.y + 2 * self.field_side] or
+                    prey_coords == [self.x + 2 * self.field_side, self.y + self.field_side] or
+                    prey_coords == [self.x + 2 * self.field_side, self.y - self.field_side]):
             self.x = prey_coords[0]
             self.y = prey_coords[1]
             if prey is not None:
                 self.execute(prey, all_heroes)
             self.draw_hero()
             return
+
+    def get_prey(self, prey_coords, all_heroes):
+        prey = None
+        for cur_hero in all_heroes:
+            if cur_hero.x == prey_coords[0] and cur_hero.y == prey_coords[1]:
+                prey = cur_hero
+                if prey.color == self.color:
+                    prey = False
+                break
+        return prey
 
 
 class Bishop(Hero):
