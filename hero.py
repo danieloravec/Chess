@@ -39,6 +39,9 @@ class Hero:
                 break
         return prey
 
+    def is_obstacle(self, prey_coords, all_heroes):
+        pass
+
 
 class Pawn(Hero):
     def move(self, prey_coords, all_heroes):
@@ -239,5 +242,16 @@ class Queen(Rook, Bishop):
 
 
 class King(Hero):
-    def move(self):
-        pass
+    def move(self, prey_coords, all_heroes):
+        prey = self.get_prey(prey_coords, all_heroes)
+        if prey is False:
+            return
+        if self.is_obstacle(prey_coords, all_heroes):
+            return
+        elif abs(prey_coords[0] - self.x) <= self.field_side and abs(prey_coords[1] - self.y) <= self.field_side:
+            if prey is not None:
+                self.execute(prey, all_heroes)
+            else:
+                self.x = prey_coords[0]
+                self.y = prey_coords[1]
+            self.draw_hero()
