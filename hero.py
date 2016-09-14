@@ -9,26 +9,32 @@ class Hero:
         self.board_side = board_width
         self.hero = None
         self.color = hero_color
-
-    def __str__(self):
-        return str(self.x) + str(self.y)
+        self.text = self.__class__.__name__[0]
 
     def remove_old(self):
-        settings.canvas.delete(self.hero)
+        # settings.canvas.delete(self.hero)
+        # settings.canvas.delete(self.text)
+        self.text = None
         self.hero = None
 
     def draw_hero(self, event=None):
         self.remove_old()
-        self.hero = settings.canvas.create_oval(
-            self.x, self.y,
-            self.x + self.field_side, self.y + self.field_side,
-            fill=self.color
-        )
+        # self.hero = settings.canvas.create_oval(
+        #     self.x, self.y,
+        #     self.x + self.field_side, self.y + self.field_side,
+        #     fill=self.color
+        # )
+        # self.text = settings.canvas.create_text(
+        #     self.x + self.field_side // 2,
+        #     self.y + self.field_side // 2,
+        #     text=self.__class__.__name__
+        # )
 
     def execute(self, prey, all_heroes):
         self.x = prey.x
         self.y = prey.y
-        settings.canvas.delete(prey.hero)
+        # settings.canvas.delete(prey.hero)
+        # settings.canvas.delete(prey.text)
         all_heroes.remove(prey)
 
     def get_prey(self, prey_coords, all_heroes):

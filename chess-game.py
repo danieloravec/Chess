@@ -127,6 +127,7 @@ class Game:
                         )
         for cur_hero in self.all_heroes:
             cur_hero.draw_hero()
+        self.redraw_situation()
 
     def move_clicked(self, click_pos):
         searched_coords = [click_pos.x - (click_pos.x % self.field_width), click_pos.y - (click_pos.y % self.field_width)]
@@ -137,12 +138,28 @@ class Game:
     def move_if_possible(self, event, hero_to_move):
         prey_coords = [event.x - (event.x % self.field_width), event.y - (event.y % self.field_width)]
         hero_to_move.move(prey_coords, self.all_heroes)
+        self.redraw_situation()
+
+    def redraw_situation(self):
+        settings.canvas.delete("all")
+        self.draw_chessboard("black")
+        for cur_hero in self.all_heroes:
+            settings.canvas.create_oval(
+                cur_hero.x, cur_hero.y,
+                cur_hero.x + self.field_width, cur_hero.y + self.field_width,
+                fill=cur_hero.color
+            )
+            settings.canvas.create_text(
+                cur_hero.x + self.field_width // 2,
+                cur_hero.y + self.field_width // 2.,
+                text=cur_hero.__class__.__name__
+            )
 
 
-# Main
-settings.init(800, 800)
-chessboard = Game(int(settings.canvas.cget('width')) // 8)
-chessboard.draw_chessboard("black")
-chessboard.chess_start()
-settings.canvas.bind("<Button-1>", chessboard.move_clicked)
-settings.root.mainloop()
+if __name__ == '__main__':
+    settings.init(800, 800)
+    chessboard = Game(int(settings.canvas.cget('width')) // 8)
+    chessboard.draw_chessboard("black")
+    chessboard.chess_start()
+    settings.canvas.bind("<Button-1>", chessboard.move_clicked)
+    settings.root.mainloop()
