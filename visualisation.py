@@ -1,5 +1,8 @@
+try:
+    from tkinter import *
+except ImportError:
+    from Tkinter import *
 from chess_game import Game
-import settings
 
 
 class Visualiser:
@@ -7,20 +10,22 @@ class Visualiser:
         self.field_side = 100
         self.board_side = self.field_side * 8
         self.game = Game()
-        settings.init(self.board_side, self.board_side)
+        self.root = Tk()
+        self.canvas = Canvas(self.root, width=self.board_side, height=self.board_side)
+        self.canvas.pack()
 
     def draw_chessboard(self, color):
         x1 = 0
         y1 = 0
         x2 = self.field_side
-        settings.canvas.create_rectangle(0, 0, self.board_side, self.board_side, fill=color)
+        self.canvas.create_rectangle(0, 0, self.board_side, self.board_side, fill=color)
 
         for i in range(8):
             for j in range(4):
                 if color == "black":
-                    settings.canvas.create_rectangle(x1, y1, x2, y1 + self.field_side, fill="white")
+                    self.canvas.create_rectangle(x1, y1, x2, y1 + self.field_side, fill="white")
                 else:
-                    settings.canvas.create_rectangle(x1, y1, x2, y1 + self.field_side, fill="black")
+                    self.canvas.create_rectangle(x1, y1, x2, y1 + self.field_side, fill="black")
                 x1 += self.field_side * 2
                 if x2 + self.field_side * 2 <= self.board_side:
                     x2 += self.field_side * 2
@@ -49,18 +54,18 @@ class Visualiser:
         ]
         for cur_hero in self.game.all_heroes:
             if [cur_hero.x, cur_hero.y] == searched_coords:
-                settings.canvas.bind('<Button-3>', lambda event, current_hero = cur_hero: self.move_and_redraw(event, current_hero))
+                self.canvas.bind('<Button-3>', lambda event, current_hero=cur_hero: self.move_and_redraw(event, current_hero))
 
     def redraw_situation(self):
-        settings.canvas.delete("all")
+        self.canvas.delete("all")
         self.draw_chessboard("black")
         for cur_hero in self.game.all_heroes:
-            settings.canvas.create_oval(
+            self.canvas.create_oval(
                 cur_hero.x * self.field_side, cur_hero.y * self.field_side,
-                cur_hero.x * self.field_side + self.field_side, cur_hero.y * self.field_side + self.field_side,
+                (cur_hero.x + 1) * self.field_side, (cur_hero.y + 1) * self.field_side,
                 fill=cur_hero.color
             )
-            settings.canvas.create_text(
+            self.canvas.create_text(
                 cur_hero.x * self.field_side + self.field_side // 2,
                 cur_hero.y * self.field_side + self.field_side // 2,
                 text=cur_hero.__class__.__name__

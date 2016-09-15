@@ -1,6 +1,3 @@
-import settings
-
-
 class Hero:
     def __init__(self, pos_x, pos_y, hero_color):
         self.x = pos_x
