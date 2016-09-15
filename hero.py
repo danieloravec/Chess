@@ -2,39 +2,15 @@ import settings
 
 
 class Hero:
-    def __init__(self, pos_x, pos_y, hero_color, field_width, board_width):
+    def __init__(self, pos_x, pos_y, hero_color):
         self.x = pos_x
         self.y = pos_y
-        self.field_side = field_width
-        self.board_side = board_width
-        self.hero = None
+        self.board_side = 8
         self.color = hero_color
-        self.text = self.__class__.__name__[0]
-
-    def remove_old(self):
-        # settings.canvas.delete(self.hero)
-        # settings.canvas.delete(self.text)
-        self.text = None
-        self.hero = None
-
-    def draw_hero(self, event=None):
-        self.remove_old()
-        # self.hero = settings.canvas.create_oval(
-        #     self.x, self.y,
-        #     self.x + self.field_side, self.y + self.field_side,
-        #     fill=self.color
-        # )
-        # self.text = settings.canvas.create_text(
-        #     self.x + self.field_side // 2,
-        #     self.y + self.field_side // 2,
-        #     text=self.__class__.__name__
-        # )
 
     def execute(self, prey, all_heroes):
         self.x = prey.x
         self.y = prey.y
-        # settings.canvas.delete(prey.hero)
-        # settings.canvas.delete(prey.text)
         all_heroes.remove(prey)
 
     def get_prey(self, prey_coords, all_heroes):
@@ -55,18 +31,18 @@ class Pawn(Hero):
         if prey is False:
             return
         if self.color == 'wheat':
-            if prey_coords == [self.x, self.y + self.field_side] and prey is None:
-                self.y += self.field_side
-            elif self.y == self.field_side and prey_coords == [self.x, self.y + 2 * self.field_side]:
-                self.y += 2 * self.field_side
+            if prey_coords == [self.x, self.y + 1] and prey is None:
+                self.y += 1
+            elif self.y == 1 and prey_coords == [self.x, self.y + 2 * 1]:
+                self.y += 2 * 1
         else:
-            if prey_coords == [self.x, self.y - self.field_side] and prey is None:
-                self.y -= self.field_side
-            elif self.y == 6 * self.field_side and prey_coords == [self.x, self.y - 2 * self.field_side]:
-                self.y -= 2 * self.field_side
+            if prey_coords == [self.x, self.y - 1] and prey is None:
+                self.y -= 1
+            elif self.y == 6 * 1 and prey_coords == [self.x, self.y - 2 * 1]:
+                self.y -= 2 * 1
         if prey is not None:
             self.execute(prey, all_heroes)
-        self.draw_hero()
+        
 
     def get_prey(self, prey_coords, all_heroes):
         prey = None
@@ -75,8 +51,8 @@ class Pawn(Hero):
                 prey = cur_hero
                 break
         if prey is not None:
-            if (abs(self.x - prey.x) != self.field_side
-                    or prey.y != (self.y + self.field_side if self.color == 'wheat' else self.y - self.field_side)
+            if (abs(self.x - prey.x) != 1
+                    or prey.y != (self.y + 1 if self.color == 'wheat' else self.y - 1)
                     or prey.color == self.color):
                 prey = False
         return prey
@@ -105,11 +81,11 @@ class Rook(Hero):
                 else:
                     if not self.is_rook_obstacle(prey_coords, all_heroes):
                         self.x = prey_coords[0]
-        self.draw_hero()
+        
         if prey:
             if not self.is_rook_obstacle(prey_coords, all_heroes):
                 self.execute(prey, all_heroes)
-        self.draw_hero()
+        
         return
 
     def is_rook_obstacle(self, prey_coords, all_heroes):
@@ -149,19 +125,19 @@ class Knight(Hero):
         prey = self.get_prey(prey_coords, all_heroes)
         if prey is False:
             return
-        if (prey_coords == [self.x + self.field_side, self.y - 2 * self.field_side] or
-                    prey_coords == [self.x - self.field_side, self.y - 2 * self.field_side] or
-                    prey_coords == [self.x - 2 * self.field_side, self.y - self.field_side] or
-                    prey_coords == [self.x - 2 * self.field_side, self.y + self.field_side] or
-                    prey_coords == [self.x - self.field_side, self.y + 2 * self.field_side] or
-                    prey_coords == [self.x + self.field_side, self.y + 2 * self.field_side] or
-                    prey_coords == [self.x + 2 * self.field_side, self.y + self.field_side] or
-                    prey_coords == [self.x + 2 * self.field_side, self.y - self.field_side]):
+        if (prey_coords == [self.x + 1, self.y - 2 * 1] or
+                    prey_coords == [self.x - 1, self.y - 2 * 1] or
+                    prey_coords == [self.x - 2 * 1, self.y - 1] or
+                    prey_coords == [self.x - 2 * 1, self.y + 1] or
+                    prey_coords == [self.x - 1, self.y + 2 * 1] or
+                    prey_coords == [self.x + 1, self.y + 2 * 1] or
+                    prey_coords == [self.x + 2 * 1, self.y + 1] or
+                    prey_coords == [self.x + 2 * 1, self.y - 1]):
             self.x = prey_coords[0]
             self.y = prey_coords[1]
             if prey is not None:
                 self.execute(prey, all_heroes)
-            self.draw_hero()
+            
             return
 
     def get_prey(self, prey_coords, all_heroes):
@@ -191,7 +167,7 @@ class Bishop(Hero):
                 self.y = prey_coords[1]
             else:
                 self.execute(prey, all_heroes)
-        self.draw_hero()
+        
 
     def is_obstacle(self, prey_coords, all_heroes):
         target_x = []
@@ -200,19 +176,19 @@ class Bishop(Hero):
         temp_y = self.y
         if temp_x < prey_coords[0]:
             while temp_x < prey_coords[0]:
-                temp_x += self.field_side
+                temp_x += 1
                 target_x.append(temp_x)
         else:
             while temp_x > prey_coords[0]:
-                temp_x -= self.field_side
+                temp_x -= 1
                 target_x.append(temp_x)
         if temp_y < prey_coords[1]:
             while temp_y < prey_coords[1]:
-                temp_y += self.field_side
+                temp_y += 1
                 target_y.append(temp_y)
         else:
             while temp_y > prey_coords[1]:
-                temp_y -= self.field_side
+                temp_y -= 1
                 target_y.append(temp_y)
         if len(target_x) == len(target_y) > 0:
             target_x.pop()
@@ -254,10 +230,10 @@ class King(Hero):
             return
         if self.is_obstacle(prey_coords, all_heroes):
             return
-        elif abs(prey_coords[0] - self.x) <= self.field_side and abs(prey_coords[1] - self.y) <= self.field_side:
+        elif abs(prey_coords[0] - self.x) <= 1 and abs(prey_coords[1] - self.y) <= 1:
             if prey is not None:
                 self.execute(prey, all_heroes)
             else:
                 self.x = prey_coords[0]
                 self.y = prey_coords[1]
-            self.draw_hero()
+            
