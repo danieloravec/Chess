@@ -15,29 +15,15 @@ class Visualiser:
         self.canvas.pack()
 
     def draw_chessboard(self, color):
-        x1 = 0
-        y1 = 0
-        x2 = self.field_side
+        fill_color = "white" if color == "black" else "black"
         self.canvas.create_rectangle(0, 0, self.board_side, self.board_side, fill=color)
-
         for i in range(8):
+            y = i * self.field_side
             for j in range(4):
-                if color == "black":
-                    self.canvas.create_rectangle(x1, y1, x2, y1 + self.field_side, fill="white")
-                else:
-                    self.canvas.create_rectangle(x1, y1, x2, y1 + self.field_side, fill="black")
-                x1 += self.field_side * 2
-                if x2 + self.field_side * 2 <= self.board_side:
-                    x2 += self.field_side * 2
-                else:
-                    x2 += self.field_side
-            y1 += self.field_side
-            if i % 2 == 0:
-                x1 = self.field_side
-                x2 = x1 * 2
-            else:
-                x1 = 0
-                x2 = self.field_side
+                x = (2 * j) * self.field_side
+                if i % 2 == 0:
+                    x += self.field_side
+                self.canvas.create_rectangle(x, y, x + self.field_side, y + self.field_side, fill=fill_color)
 
     def move_and_redraw(self, event, hero_to_move):
         self.game.move_if_possible(
@@ -48,12 +34,12 @@ class Visualiser:
         self.redraw_situation()
 
     def move_clicked(self, click_pos):
-        searched_coords = [
+        searched_coords = (
             (click_pos.x - (click_pos.x % self.field_side)) // self.field_side,
             (click_pos.y - (click_pos.y % self.field_side)) // self.field_side
-        ]
+        )
         for cur_hero in self.game.all_heroes:
-            if [cur_hero.x, cur_hero.y] == searched_coords:
+            if (cur_hero.x, cur_hero.y) == searched_coords:
                 self.canvas.bind('<Button-3>', lambda event, current_hero=cur_hero: self.move_and_redraw(event, current_hero))
 
     def redraw_situation(self):

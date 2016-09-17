@@ -1,9 +1,9 @@
 class Hero:
-    def __init__(self, pos_x, pos_y, hero_color):
-        self.x = pos_x
-        self.y = pos_y
+    def __init__(self, args_list):
+        self.x = args_list[0]
+        self.y = args_list[1]
         self.board_side = 8
-        self.color = hero_color
+        self.color = args_list[2]
 
     def execute(self, prey, all_heroes):
         self.x = prey.x
@@ -27,19 +27,21 @@ class Pawn(Hero):
         prey = self.get_prey(prey_coords, all_heroes)
         if prey is False:
             return
-        if self.color == 'wheat':
-            if prey_coords == [self.x, self.y + 1] and prey is None:
-                self.y += 1
-            elif self.y == 1 and prey_coords == [self.x, self.y + 2 * 1]:
-                self.y += 2 * 1
-        else:
-            if prey_coords == [self.x, self.y - 1] and prey is None:
-                self.y -= 1
-            elif self.y == 6 * 1 and prey_coords == [self.x, self.y - 2 * 1]:
-                self.y -= 2 * 1
+        y_modificator = 1 if self.color == "wheat" else -1
+        color_y_position = 1 if self.color == "wheat" else 6
+        if prey_coords == [self.x, self.y + y_modificator] and prey is None:
+            self.y += y_modificator
+        elif self.y == color_y_position and prey_coords == [self.x, self.y + 2 * y_modificator]:
+            if not self.is_obstacle(prey_coords, all_heroes):
+                self.y += 2 * y_modificator
         if prey is not None:
             self.execute(prey, all_heroes)
-        
+
+    def is_obstacle(self, prey_coords, all_heroes):
+        for block_piece in all_heroes:
+            if block_piece.x == self.x and (prey_coords[1] > block_piece.y > self.y or prey_coords[1] < block_piece.y < self.y):
+                return True
+        return False
 
     def get_prey(self, prey_coords, all_heroes):
         prey = None
@@ -65,25 +67,14 @@ class Rook(Hero):
             return
         if not prey:
             if prey_coords[0] == self.x:
-                if prey_coords[1] > self.y:
-                    if not self.is_rook_obstacle(prey_coords, all_heroes):
-                        self.y = prey_coords[1]
-                else:
-                    if not self.is_rook_obstacle(prey_coords, all_heroes):
-                        self.y = prey_coords[1]
+                if not self.is_rook_obstacle(prey_coords, all_heroes):
+                    self.y = prey_coords[1]
             elif prey_coords[1] == self.y:
-                if prey_coords[0] < self.x:
-                    if not self.is_rook_obstacle(prey_coords, all_heroes):
-                        self.x = prey_coords[0]
-                else:
-                    if not self.is_rook_obstacle(prey_coords, all_heroes):
-                        self.x = prey_coords[0]
-        
+                if not self.is_rook_obstacle(prey_coords, all_heroes):
+                    self.x = prey_coords[0]
         if prey:
             if not self.is_rook_obstacle(prey_coords, all_heroes):
                 self.execute(prey, all_heroes)
-        
-        return
 
     def is_rook_obstacle(self, prey_coords, all_heroes):
         for block_piece in all_heroes:
@@ -122,20 +113,24 @@ class Knight(Hero):
         prey = self.get_prey(prey_coords, all_heroes)
         if prey is False:
             return
-        if (prey_coords == [self.x + 1, self.y - 2 * 1] or
-                    prey_coords == [self.x - 1, self.y - 2 * 1] or
-                    prey_coords == [self.x - 2 * 1, self.y - 1] or
-                    prey_coords == [self.x - 2 * 1, self.y + 1] or
-                    prey_coords == [self.x - 1, self.y + 2 * 1] or
-                    prey_coords == [self.x + 1, self.y + 2 * 1] or
-                    prey_coords == [self.x + 2 * 1, self.y + 1] or
-                    prey_coords == [self.x + 2 * 1, self.y - 1]):
+        if self.can_move(prey_coords):
             self.x = prey_coords[0]
             self.y = prey_coords[1]
             if prey is not None:
                 self.execute(prey, all_heroes)
-            
-            return
+
+    def can_move(self, prey_coords):
+        if (prey_coords == [self.x + 1, self.y - 2 * 1] or
+                prey_coords == [self.x - 1, self.y - 2 * 1] or
+                prey_coords == [self.x - 2 * 1, self.y - 1] or
+                prey_coords == [self.x - 2 * 1, self.y + 1] or
+                prey_coords == [self.x - 1, self.y + 2 * 1] or
+                prey_coords == [self.x + 1, self.y + 2 * 1] or
+                prey_coords == [self.x + 2 * 1, self.y + 1] or
+                prey_coords == [self.x + 2 * 1, self.y - 1]):
+            return True
+        else:
+            return False
 
     def get_prey(self, prey_coords, all_heroes):
         prey = None
@@ -164,7 +159,6 @@ class Bishop(Hero):
                 self.y = prey_coords[1]
             else:
                 self.execute(prey, all_heroes)
-        
 
     def is_obstacle(self, prey_coords, all_heroes):
         target_x = []
