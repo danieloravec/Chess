@@ -1,4 +1,5 @@
 from hero import *
+import json
 
 
 class Game:

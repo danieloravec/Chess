@@ -1,3 +1,6 @@
+import json
+
+
 class Hero:
     def __init__(self, args_list):
         self.x = args_list[0]
@@ -20,6 +23,14 @@ class Hero:
 
     def is_obstacle(self, prey_coords, all_heroes):
         pass
+
+    def dump(self):
+        return {
+            "x": self.x,
+            "y": self.y,
+            "color": self.color,
+            "type": self.__class__.__name__
+        }
 
 
 class Pawn(Hero):
@@ -227,4 +238,3 @@ class King(Hero):
             else:
                 self.x = prey_coords[0]
                 self.y = prey_coords[1]
-            
