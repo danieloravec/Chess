@@ -7,19 +7,20 @@ class Menu:
     def __init__(self):
         pass
 
-    def save_game(self, all_heroes):
-        date = datetime.now()
-        save_name = 'sv.json'
-        # save_name = 'chess_save' + str(date.year) + '_' + str(date.day) + '_'\
-        #             + str(date.month) + '_' + str(date.hour) + '_' + str(date.minute) + '_' + str(date.second) + '.json'
-        with open(save_name, 'w') as save_file:
+    # save_game and load_game need save directory created
+    # save_name_from_user and file_name are now always 'saved_game'
+    #  -> it is set in visualisation.py __init__ and load_button_pressed
+
+    def save_game(self, all_heroes, save_name_from_user):
+        save_name_from_user += '.json'
+        with open('saves/' + save_name_from_user, 'w') as save_file:
             json.dump([o.dump() for o in all_heroes], save_file)
 
     def load_game(self, all_heroes, file_name):
         file_name += '.json'
         coords = [0, 0]
         all_heroes = []
-        json_data = open(file_name).read()
+        json_data = open('saves/' + file_name).read()
         json_object = json.loads(json_data)
         for figure in json_object:
             coords[0] = figure['x']
@@ -38,3 +39,4 @@ class Menu:
                 all_heroes.append(Queen(constructor_args))
             else:
                 all_heroes.append(King(constructor_args))
+        return all_heroes
