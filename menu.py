@@ -10,7 +10,6 @@ class Menu:
     # save_game and load_game need save directory created
     # save_name_from_user and file_name are now always 'saved_game'
     #  -> it is set in visualisation.py __init__ and load_button_pressed
-
     def save_game(self, all_heroes, save_name_from_user):
         save_name_from_user += '.json'
         with open('saves/' + save_name_from_user, 'w') as save_file:
