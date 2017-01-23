@@ -15,8 +15,10 @@ class Visualiser:
         self.game = Game()
         self.menu = Menu()
         self.root = Tk()
-        self.save_button = Button(self.root, width=10, height=2, text='Save', bg='cyan', command=lambda: self.menu.save_game(self.game.all_heroes))
-        self.load_button = Button(self.root, width=10, height=2, text='Load', bg='orange', command=lambda: self.menu.load_game(self.game.all_heroes, 'sv'))
+        self.save_button = Button(self.root, width=10, height=2, text='Save', bg='cyan',
+                                  command=lambda: self.menu.save_game(self.game.all_heroes))
+        self.load_button = Button(self.root, width=10, height=2, text='Load', bg='orange',
+                                  command=lambda: [self.menu.load_game(self.game.all_heroes, 'sv'), self.redraw_situation()])
         self.canvas = Canvas(self.root, width=self.board_side + self.button_width, height=self.board_side)
         self.canvas.grid(row=0, column=0, rowspan=8, columnspan=8)
         self.save_button.grid(row=0, column=8)

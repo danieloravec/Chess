@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+from hero import *
 
 
 class Menu:
@@ -24,8 +25,16 @@ class Menu:
             coords[0] = figure['x']
             coords[1] = figure['y']
             color = figure['color']
-
-
-
-
-        # constructor_args = [coords[0], coords[1], 'wheat' if coords[1] == 0 or coords[1] == 1 else 'snow4']
+            constructor_args = [coords[0], coords[1], color]
+            if figure['type'] == 'Pawn':
+                all_heroes.append(Pawn(constructor_args))
+            elif figure['type'] == 'Knight':
+                all_heroes.append(Knight(constructor_args))
+            elif figure['type'] == 'Bishop':
+                all_heroes.append(Bishop(constructor_args))
+            elif figure['type'] == 'Rook':
+                all_heroes.append(Rook(constructor_args))
+            elif figure['type'] == 'Queen':
+                all_heroes.append(Queen(constructor_args))
+            else:
+                all_heroes.append(King(constructor_args))
