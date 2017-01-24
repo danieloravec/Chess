@@ -1,5 +1,8 @@
 import json
 
+dy = [1, 1, 0, -1, -1, -1, 0, 1]
+dx = [0, 1, 1, 1, 0, -1, -1, -1]
+
 
 class Hero:
     def __init__(self, args_list):
@@ -31,6 +34,12 @@ class Hero:
             "color": self.color,
             "type": self.__class__.__name__
         }
+
+    def get_valid_moves(self, occupied_fields):
+        pass
+
+    def is_inside_chessboard(self, x_coord, y_coord):
+        return 0 <= x_coord < self.board_side and 0 <= y_coord < self.board_side
 
 
 class Pawn(Hero):
@@ -66,6 +75,30 @@ class Pawn(Hero):
                     or prey.color == self.color):
                 prey = False
         return prey
+
+    def get_valid_moves(self, occupied_fields):
+        valid_positions = []
+        if self.color == 'snow4' or self.color == 'black':
+            if self.is_inside_chessboard(self.x, self.y - 1) and occupied_fields[self.y - 1][self.x] == 0:
+                valid_positions.append([self.x, self.y - 1])
+            if self.is_inside_chessboard(self.x, self.y - 2) and self.y == 6\
+                    and occupied_fields[self.y - 2][self.x] == 0 and occupied_fields[self.y - 1][self.x] == 0:
+                valid_positions.append([self.x, self.y - 2])
+            if self.is_inside_chessboard(self.x + 1, self.y - 1) and occupied_fields[self.y - 1][self.x + 1] == 1:
+                valid_positions.append([self.x + 1, self.y - 1])
+            if self.is_inside_chessboard(self.x - 1, self.y - 1) and occupied_fields[self.y - 1][self.x - 1] == 1:
+                valid_positions.append([self.x - 1, self.y - 1])
+        else:
+            if self.is_inside_chessboard(self.x, self.y + 1) and occupied_fields[self.y + 1][self.x] == 0:
+                valid_positions.append([self.x, self.y + 1])
+            if self.is_inside_chessboard(self.x, self.y + 2) and self.y == 1\
+                    and occupied_fields[self.y + 2][self.x] == 0 and occupied_fields[self.y + 1][self.x] == 0:
+                valid_positions.append([self.x, self.y + 2])
+            if self.is_inside_chessboard(self.x + 1, self.y + 1) and occupied_fields[self.y + 1][self.x + 1] == -1:
+                valid_positions.append([self.x + 1, self.y + 1])
+            if self.is_inside_chessboard(self.x - 1, self.y + 1) and occupied_fields[self.y + 1][self.x - 1] == -1:
+                valid_positions.append([self.x - 1, self.y + 1])
+        return valid_positions
 
 
 class Rook(Hero):
@@ -118,6 +151,11 @@ class Rook(Hero):
                 prey = False
         return prey
 
+    def get_valid_moves(self, x_coord, y_coord):
+        valid_positions = []
+        temp_x = x_coord
+        # while
+
 
 class Knight(Hero):
     def move(self, prey_coords, all_heroes):
@@ -131,14 +169,14 @@ class Knight(Hero):
                 self.execute(prey, all_heroes)
 
     def can_move(self, prey_coords):
-        if (prey_coords == [self.x + 1, self.y - 2 * 1] or
-                prey_coords == [self.x - 1, self.y - 2 * 1] or
-                prey_coords == [self.x - 2 * 1, self.y - 1] or
-                prey_coords == [self.x - 2 * 1, self.y + 1] or
-                prey_coords == [self.x - 1, self.y + 2 * 1] or
-                prey_coords == [self.x + 1, self.y + 2 * 1] or
-                prey_coords == [self.x + 2 * 1, self.y + 1] or
-                prey_coords == [self.x + 2 * 1, self.y - 1]):
+        if (prey_coords == [self.x + 1, self.y - 2] or
+                prey_coords == [self.x - 1, self.y - 2] or
+                prey_coords == [self.x - 2, self.y - 1] or
+                prey_coords == [self.x - 2, self.y + 1] or
+                prey_coords == [self.x - 1, self.y + 2] or
+                prey_coords == [self.x + 1, self.y + 2] or
+                prey_coords == [self.x + 2, self.y + 1] or
+                prey_coords == [self.x + 2, self.y - 1]):
             return True
         else:
             return False
