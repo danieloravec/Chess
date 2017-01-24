@@ -1,7 +1,9 @@
 import json
 
-dy = [1, 1, 0, -1, -1, -1, 0, 1]
-dx = [0, 1, 1, 1, 0, -1, -1, -1]
+d8y = [1, 1, 0, -1, -1, -1, 0, 1]
+d8x = [0, 1, 1, 1, 0, -1, -1, -1]
+d4x = [0, 1, 0, -1]
+d4y = [1, 0, -1, 0]
 
 
 class Hero:
@@ -10,6 +12,8 @@ class Hero:
         self.y = args_list[1]
         self.board_side = 8
         self.color = args_list[2]
+        self.black_color = 'snow4'
+        self.white_color = 'wheat'
 
     def execute(self, prey, all_heroes):
         self.x = prey.x
@@ -47,8 +51,8 @@ class Pawn(Hero):
         prey = self.get_prey(prey_coords, all_heroes)
         if prey is False:
             return
-        y_modificator = 1 if self.color == "wheat" else -1
-        color_y_position = 1 if self.color == "wheat" else 6
+        y_modificator = 1 if self.color == self.white_color else -1
+        color_y_position = 1 if self.color == self.white_color else 6
         if prey_coords == [self.x, self.y + y_modificator] and prey is None:
             self.y += y_modificator
         elif self.y == color_y_position and prey_coords == [self.x, self.y + 2 * y_modificator]:
@@ -71,33 +75,28 @@ class Pawn(Hero):
                 break
         if prey is not None:
             if (abs(self.x - prey.x) != 1
-                    or prey.y != (self.y + 1 if self.color == 'wheat' else self.y - 1)
+                    or prey.y != (self.y + 1 if self.color == self.white_color else self.y - 1)
                     or prey.color == self.color):
                 prey = False
         return prey
 
+    # TODO find more elegant way..
     def get_valid_moves(self, occupied_fields):
         valid_positions = []
-        if self.color == 'snow4' or self.color == 'black':
-            if self.is_inside_chessboard(self.x, self.y - 1) and occupied_fields[self.y - 1][self.x] == 0:
-                valid_positions.append([self.x, self.y - 1])
-            if self.is_inside_chessboard(self.x, self.y - 2) and self.y == 6\
-                    and occupied_fields[self.y - 2][self.x] == 0 and occupied_fields[self.y - 1][self.x] == 0:
-                valid_positions.append([self.x, self.y - 2])
-            if self.is_inside_chessboard(self.x + 1, self.y - 1) and occupied_fields[self.y - 1][self.x + 1] == 1:
-                valid_positions.append([self.x + 1, self.y - 1])
-            if self.is_inside_chessboard(self.x - 1, self.y - 1) and occupied_fields[self.y - 1][self.x - 1] == 1:
-                valid_positions.append([self.x - 1, self.y - 1])
-        else:
-            if self.is_inside_chessboard(self.x, self.y + 1) and occupied_fields[self.y + 1][self.x] == 0:
-                valid_positions.append([self.x, self.y + 1])
-            if self.is_inside_chessboard(self.x, self.y + 2) and self.y == 1\
-                    and occupied_fields[self.y + 2][self.x] == 0 and occupied_fields[self.y + 1][self.x] == 0:
-                valid_positions.append([self.x, self.y + 2])
-            if self.is_inside_chessboard(self.x + 1, self.y + 1) and occupied_fields[self.y + 1][self.x + 1] == -1:
-                valid_positions.append([self.x + 1, self.y + 1])
-            if self.is_inside_chessboard(self.x - 1, self.y + 1) and occupied_fields[self.y + 1][self.x - 1] == -1:
-                valid_positions.append([self.x - 1, self.y + 1])
+        is_black = self.color == self.black_color
+        if self.is_inside_chessboard(self.x, self.y - (1 if is_black else -1))\
+                and occupied_fields[self.y - (1 if is_black else -1)][self.x] == 0:
+            valid_positions.append([self.x, self.y - (1 if is_black else -1)])
+        if self.is_inside_chessboard(self.x, self.y - (2 if is_black else -2))and self.y == (6 if is_black else 1)\
+                and occupied_fields[self.y - (2 if is_black else -2)][self.x] == 0\
+                and occupied_fields[self.y - (1 if is_black else -1)][self.x] == 0:
+            valid_positions.append([self.x, self.y - (2 if is_black else -2)])
+        if self.is_inside_chessboard(self.x + (1 if is_black else -1), self.y - (1 if is_black else -1))\
+                and occupied_fields[self.y - (1 if is_black else -1)][self.x + (1 if is_black else -1)] == (1 if is_black else -1):
+            valid_positions.append([self.x + (1 if is_black else -1), self.y - (1 if is_black else -1)])
+        if self.is_inside_chessboard(self.x - (1 if is_black else -1), self.y - (1 if is_black else -1))\
+                and occupied_fields[self.y - (1 if is_black else -1)][self.x - (1 if is_black else -1)] == (1 if is_black else -1):
+            valid_positions.append([self.x - (1 if is_black else -1), self.y - (1 if is_black else -1)])
         return valid_positions
 
 
@@ -151,10 +150,27 @@ class Rook(Hero):
                 prey = False
         return prey
 
-    def get_valid_moves(self, x_coord, y_coord):
+    def get_valid_moves_by_direction(self, x_increment, y_increment, occupied_fields):
+        direction_valid_positions = []
+        cur_x = self.x + x_increment
+        cur_y = self.y + y_increment
+        while self.is_inside_chessboard(cur_x, cur_y)\
+                and occupied_fields[cur_y][cur_x] != (1 if self.color == self.white_color else -1):
+            direction_valid_positions.append([cur_x, cur_y])
+            if occupied_fields[cur_y][cur_x] != 0:
+                break
+            cur_x += x_increment
+            cur_y += y_increment
+        return direction_valid_positions
+
+    def get_valid_moves_rook(self, occupied_fields):
         valid_positions = []
-        temp_x = x_coord
-        # while
+        for i in range(4):
+            valid_positions += self.get_valid_moves_by_direction(d4x[i], d4y[i], occupied_fields)
+        return valid_positions
+
+    def get_valid_moves(self, occupied_fields):
+        return self.get_valid_moves_rook(occupied_fields)
 
 
 class Knight(Hero):
@@ -190,6 +206,25 @@ class Knight(Hero):
                     prey = False
                 break
         return prey
+
+    def get_valid_moves_by_direction(self, x_increment, y_increment, occupied_fields):
+        direction_valid_moves = []
+        if self.is_inside_chessboard(self.x + x_increment, self.y + y_increment)\
+                    and occupied_fields[self.y + y_increment][self.x + x_increment] != (1 if self.color == self.white_color else -1):
+            direction_valid_moves.append([self.x + x_increment, self.y + y_increment])
+        return direction_valid_moves
+
+    def get_valid_moves(self, occupied_fields):
+        valid_moves = []
+        valid_moves += self.get_valid_moves_by_direction(1, -2, occupied_fields)
+        valid_moves += self.get_valid_moves_by_direction(-1, -2, occupied_fields)
+        valid_moves += self.get_valid_moves_by_direction(-2, -1, occupied_fields)
+        valid_moves += self.get_valid_moves_by_direction(-2, 1, occupied_fields)
+        valid_moves += self.get_valid_moves_by_direction(-1, 2, occupied_fields)
+        valid_moves += self.get_valid_moves_by_direction(1, 2, occupied_fields)
+        valid_moves += self.get_valid_moves_by_direction(2, -1, occupied_fields)
+        valid_moves += self.get_valid_moves_by_direction(2, 1, occupied_fields)
+        return valid_moves
 
 
 class Bishop(Hero):
@@ -254,6 +289,30 @@ class Bishop(Hero):
                 prey = False
         return prey
 
+    def get_valid_moves_by_direction(self, x_increment, y_increment, occupied_fields):
+        direction_valid_moves = []
+        cur_x = self.x + x_increment
+        cur_y = self.y + y_increment
+        while self.is_inside_chessboard(cur_x, cur_y) \
+                and occupied_fields[cur_y][cur_x] != (1 if self.color == self.white_color else -1):
+            direction_valid_moves.append([cur_x, cur_y])
+            if occupied_fields[cur_y][cur_x] != 0:
+                break
+            cur_x += x_increment
+            cur_y += y_increment
+        return direction_valid_moves
+
+    def get_valid_moves_bishop(self, occupied_fields):
+        valid_moves = []
+        valid_moves += self.get_valid_moves_by_direction(1, 1, occupied_fields)
+        valid_moves += self.get_valid_moves_by_direction(1, -1, occupied_fields)
+        valid_moves += self.get_valid_moves_by_direction(-1, 1, occupied_fields)
+        valid_moves += self.get_valid_moves_by_direction(-1, -1, occupied_fields)
+        return valid_moves
+
+    def get_valid_moves(self, occupied_fields):
+        return self.get_valid_moves_bishop(occupied_fields)
+
 
 class Queen(Rook, Bishop):
     def move(self, prey_coords, all_heroes):
@@ -261,6 +320,11 @@ class Queen(Rook, Bishop):
             self.move_rook(prey_coords, all_heroes)
         else:
             self.move_bishop(prey_coords, all_heroes)
+
+    def get_valid_moves(self, occupied_fields):
+        valid_moves = self.get_valid_moves_bishop(occupied_fields)
+        valid_moves += self.get_valid_moves_rook(occupied_fields)
+        return valid_moves
 
 
 class King(Hero):
@@ -276,3 +340,11 @@ class King(Hero):
             else:
                 self.x = prey_coords[0]
                 self.y = prey_coords[1]
+
+    def get_valid_moves(self, occupied_fields):
+        valid_moves = []
+        for i in range(8):
+            if self.is_inside_chessboard(self.x + d8x[i], self.y + d8y[i])\
+                    and occupied_fields[self.y + d8y[i]][self.x + d8x[i]] != (1 if self.color == self.white_color else -1):
+                valid_moves.append([self.x + d8x[i], self.y + d8y[i]])
+        return valid_moves
