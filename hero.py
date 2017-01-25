@@ -50,7 +50,7 @@ class Pawn(Hero):
     def move(self, prey_coords, all_heroes):
         prey = self.get_prey(prey_coords, all_heroes)
         if prey is False:
-            return
+            return False
         y_modificator = 1 if self.color == self.white_color else -1
         color_y_position = 1 if self.color == self.white_color else 6
         if prey_coords == [self.x, self.y + y_modificator] and prey is None:
@@ -60,6 +60,7 @@ class Pawn(Hero):
                 self.y += 2 * y_modificator
         if prey is not None:
             self.execute(prey, all_heroes)
+        return True
 
     def is_obstacle(self, prey_coords, all_heroes):
         for block_piece in all_heroes:
@@ -107,7 +108,7 @@ class Rook(Hero):
     def move_rook(self, prey_coords, all_heroes):
         prey = self.get_rook_prey(prey_coords, all_heroes)
         if prey is False:
-            return
+            return False
         if not prey:
             if prey_coords[0] == self.x:
                 if not self.is_rook_obstacle(prey_coords, all_heroes):
@@ -118,6 +119,7 @@ class Rook(Hero):
         if prey:
             if not self.is_rook_obstacle(prey_coords, all_heroes):
                 self.execute(prey, all_heroes)
+        return True
 
     def is_rook_obstacle(self, prey_coords, all_heroes):
         for block_piece in all_heroes:
@@ -177,12 +179,13 @@ class Knight(Hero):
     def move(self, prey_coords, all_heroes):
         prey = self.get_prey(prey_coords, all_heroes)
         if prey is False:
-            return
+            return False
         if self.can_move(prey_coords):
             self.x = prey_coords[0]
             self.y = prey_coords[1]
             if prey is not None:
                 self.execute(prey, all_heroes)
+        return True
 
     def can_move(self, prey_coords):
         if (prey_coords == [self.x + 1, self.y - 2] or
@@ -234,15 +237,16 @@ class Bishop(Hero):
     def move_bishop(self, prey_coords, all_heroes):
         prey = self.get_prey(prey_coords, all_heroes)
         if self.is_obstacle(prey_coords, all_heroes):
-            return
+            return False
         else:
             if prey is False:
-                return
+                return False
             elif prey is None:
                 self.x = prey_coords[0]
                 self.y = prey_coords[1]
             else:
                 self.execute(prey, all_heroes)
+        return True
 
     def is_obstacle(self, prey_coords, all_heroes):
         target_x = []
@@ -317,9 +321,9 @@ class Bishop(Hero):
 class Queen(Rook, Bishop):
     def move(self, prey_coords, all_heroes):
         if self.x == prey_coords[0] or self.y == prey_coords[1]:
-            self.move_rook(prey_coords, all_heroes)
+            return self.move_rook(prey_coords, all_heroes)
         else:
-            self.move_bishop(prey_coords, all_heroes)
+            return self.move_bishop(prey_coords, all_heroes)
 
     def get_valid_moves(self, occupied_fields):
         valid_moves = self.get_valid_moves_bishop(occupied_fields)
@@ -331,7 +335,7 @@ class King(Hero):
     def move(self, prey_coords, all_heroes):
         prey = self.get_prey(prey_coords, all_heroes)
         if prey is False:
-            return
+            return False
         if self.is_obstacle(prey_coords, all_heroes):
             return
         elif abs(prey_coords[0] - self.x) <= 1 and abs(prey_coords[1] - self.y) <= 1:
@@ -340,6 +344,7 @@ class King(Hero):
             else:
                 self.x = prey_coords[0]
                 self.y = prey_coords[1]
+        return True
 
     def get_valid_moves(self, occupied_fields):
         valid_moves = []

@@ -1,5 +1,9 @@
-from hero import *
-import json
+from figures.bishop import Bishop
+from figures.king import King
+from figures.knight import Knight
+from figures.pawn import Pawn
+from figures.queen import Queen
+from figures.rook import Rook
 
 
 class Game:
@@ -47,8 +51,15 @@ class Game:
 
     def move_if_possible(self, prey_x, prey_y, hero_to_move):
         prey_coords = [prey_x, prey_y]
-        occupation_number = -1 if hero_to_move.color == 'snow4' or hero_to_move.color == 'black' else 1
-        self.is_occupied[hero_to_move.y][hero_to_move.x] = 0
-        hero_to_move.move(prey_coords, self.all_heroes)
-        self.is_occupied[hero_to_move.y][hero_to_move.x] = occupation_number
-        pass
+        occupation_number = 1 if hero_to_move.color == hero_to_move.white_color else -1
+        old_x = hero_to_move.x
+        old_y = hero_to_move.y
+        move_performed = hero_to_move.move(prey_coords, self.all_heroes)
+        if move_performed:
+            self.is_occupied[old_y][old_x] = 0
+            self.is_occupied[hero_to_move.y][hero_to_move.x] = occupation_number
+            if hero_to_move.__class__.__name__ == 'Pawn'\
+                    and hero_to_move.y == (0 if hero_to_move.color == hero_to_move.black_color else self.board_side - 1):
+                constructor_args = [hero_to_move.x, hero_to_move.y, hero_to_move.color]
+                self.all_heroes.remove(hero_to_move)
+                self.all_heroes.append(Queen(constructor_args))

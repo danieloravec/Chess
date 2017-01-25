@@ -4,6 +4,7 @@ except ImportError:
     from Tkinter import *
 from chess_game import Game
 from menu import Menu
+from figures.hero import Hero
 
 
 class Visualiser:
@@ -64,8 +65,9 @@ class Visualiser:
             (click_pos.y - (click_pos.y % self.field_side)) // self.field_side
         )
         for cur_hero in self.game.all_heroes:
+            valid_moves = []
             if (cur_hero.x, cur_hero.y) == searched_coords:
-                valid_moves = cur_hero.get_valid_moves(self.game.is_occupied)
+                valid_moves = cur_hero.get_valid_moves(self.game.is_occupied, self.game.all_heroes)
                 self.show_valid_moves(valid_moves)
                 self.canvas.bind('<Button-3>', lambda event, current_hero=cur_hero: self.move_and_redraw(event, current_hero))
 
