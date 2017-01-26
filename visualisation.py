@@ -52,7 +52,6 @@ class Visualiser:
     def show_valid_moves(self, valid_moves):
         for advise_oval in self.valid_moves_advise_ovals:
             self.canvas.delete(advise_oval)
-        advise_ovals = []
         for valid_move in valid_moves:
             advise_oval = self.canvas.create_oval(valid_move[0] * self.field_side, valid_move[1] * self.field_side,
                                     (valid_move[0] + 1) * self.field_side, (valid_move[1] + 1) * self.field_side,
@@ -65,8 +64,10 @@ class Visualiser:
             (click_pos.y - (click_pos.y % self.field_side)) // self.field_side
         )
         for cur_hero in self.game.all_heroes:
-            valid_moves = []
             if (cur_hero.x, cur_hero.y) == searched_coords:
+                if (self.game.last_move and cur_hero.color == cur_hero.white_color)\
+                        or (not self.game.last_move and cur_hero.color == cur_hero.black_color):
+                    return
                 valid_moves = cur_hero.get_valid_moves(self.game.is_occupied, self.game.all_heroes)
                 self.show_valid_moves(valid_moves)
                 self.canvas.bind('<Button-3>', lambda event, current_hero=cur_hero: self.move_and_redraw(event, current_hero))

@@ -14,6 +14,7 @@ class Game:
         self.mark_board_fields()
         self.all_heroes = []
         self.is_occupied = []
+        self.last_move = False
         for i in range(8):
             self.is_occupied.append([])
             for j in range(8):
@@ -50,6 +51,10 @@ class Game:
                         self.all_heroes.append(King(constructor_args))
 
     def move_if_possible(self, prey_x, prey_y, hero_to_move):
+        if (self.last_move and hero_to_move.color == hero_to_move.white_color)\
+                or (not self.last_move and hero_to_move.color == hero_to_move.black_color)\
+                or ([prey_x, prey_y] == [hero_to_move.x, hero_to_move.y]):
+            return
         prey_coords = [prey_x, prey_y]
         occupation_number = 1 if hero_to_move.color == hero_to_move.white_color else -1
         old_x = hero_to_move.x
@@ -63,3 +68,4 @@ class Game:
                 constructor_args = [hero_to_move.x, hero_to_move.y, hero_to_move.color]
                 self.all_heroes.remove(hero_to_move)
                 self.all_heroes.append(Queen(constructor_args))
+        self.last_move = not self.last_move
