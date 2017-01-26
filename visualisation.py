@@ -4,7 +4,7 @@ except ImportError:
     from Tkinter import *
 from chess_game import Game
 from menu import Menu
-from datetime import datetime
+from figures.hero import Hero
 
 
 class Visualiser:
@@ -13,6 +13,7 @@ class Visualiser:
         self.board_side = self.field_side * 8
         self.button_width = self.field_side
         self.button_height = self.field_side // 2
+        self.valid_moves_advise_ovals = []
         self.game = Game()
         self.menu = Menu()
         self.root = Tk()
@@ -26,7 +27,7 @@ class Visualiser:
         self.load_button.grid(row=1, column=8)
 
     def load_button_pressed(self):
-        self.game.all_heroes = self.menu.load_game(self.game.all_heroes, 'saved_game')
+        self.game.all_heroes = self.menu.load_game('saved_game')
         self.redraw_situation()
 
     def draw_chessboard(self, color):
@@ -48,6 +49,15 @@ class Visualiser:
         )
         self.redraw_situation()
 
+    def show_valid_moves(self, valid_moves):
+        for advise_oval in self.valid_moves_advise_ovals:
+            self.canvas.delete(advise_oval)
+        for valid_move in valid_moves:
+            advise_oval = self.canvas.create_oval(valid_move[0] * self.field_side, valid_move[1] * self.field_side,
+                                    (valid_move[0] + 1) * self.field_side, (valid_move[1] + 1) * self.field_side,
+                                    dash=(3, 5), outline='#FF0000')
+            self.valid_moves_advise_ovals.append(advise_oval)
+
     def move_clicked(self, click_pos):
         searched_coords = (
             (click_pos.x - (click_pos.x % self.field_side)) // self.field_side,
@@ -55,6 +65,11 @@ class Visualiser:
         )
         for cur_hero in self.game.all_heroes:
             if (cur_hero.x, cur_hero.y) == searched_coords:
+                if (self.game.last_move and cur_hero.color == cur_hero.white_color)\
+                        or (not self.game.last_move and cur_hero.color == cur_hero.black_color):
+                    return
+                valid_moves = cur_hero.get_valid_moves(self.game.is_occupied, self.game.all_heroes)
+                self.show_valid_moves(valid_moves)
                 self.canvas.bind('<Button-3>', lambda event, current_hero=cur_hero: self.move_and_redraw(event, current_hero))
 
     def redraw_situation(self):

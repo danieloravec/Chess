@@ -1,5 +1,9 @@
-from hero import *
-import json
+from figures.bishop import Bishop
+from figures.king import King
+from figures.knight import Knight
+from figures.pawn import Pawn
+from figures.queen import Queen
+from figures.rook import Rook
 
 
 class Game:
@@ -9,6 +13,13 @@ class Game:
         self.starting_positions = {'white': [], 'black': []}
         self.mark_board_fields()
         self.all_heroes = []
+        self.is_occupied = []
+        self.last_move = False
+        for i in range(8):
+            self.is_occupied.append([])
+            for j in range(8):
+                # -1 is black, 0 is empty, 1 is white
+                self.is_occupied[i].append(1 if i < 2 else (-1 if i > 5 else 0))
 
     def mark_board_fields(self):
         for i in range(8):
@@ -38,11 +49,22 @@ class Game:
                     else:
                         self.all_heroes.append(King(constructor_args))
 
-    def move_selected(self, x, y):
-        for cur_hero in self.all_heroes:
-            if cur_hero.x == x and cur_hero.y == y:
-                self.move_if_possible()
-
     def move_if_possible(self, prey_x, prey_y, hero_to_move):
+        if (self.last_move and hero_to_move.color == hero_to_move.white_color)\
+                or (not self.last_move and hero_to_move.color == hero_to_move.black_color)\
+                or ([prey_x, prey_y] == [hero_to_move.x, hero_to_move.y]):
+            return
         prey_coords = [prey_x, prey_y]
-        hero_to_move.move(prey_coords, self.all_heroes)
+        occupation_number = 1 if hero_to_move.color == hero_to_move.white_color else -1
+        old_x = hero_to_move.x
+        old_y = hero_to_move.y
+        move_performed = hero_to_move.move(prey_coords, self.all_heroes)
+        if move_performed:
+            self.is_occupied[old_y][old_x] = 0
+            self.is_occupied[hero_to_move.y][hero_to_move.x] = occupation_number
+            if hero_to_move.__class__.__name__ == 'Pawn'\
+                    and hero_to_move.y == (0 if hero_to_move.color == hero_to_move.black_color else self.board_side - 1):
+                constructor_args = [hero_to_move.x, hero_to_move.y, hero_to_move.color]
+                self.all_heroes.remove(hero_to_move)
+                self.all_heroes.append(Queen(constructor_args))
+        self.last_move = not self.last_move
