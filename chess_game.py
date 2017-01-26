@@ -20,7 +20,6 @@ class Game:
             for j in range(8):
                 # -1 is black, 0 is empty, 1 is white
                 self.is_occupied[i].append(1 if i < 2 else (-1 if i > 5 else 0))
-        pass
 
     def mark_board_fields(self):
         for i in range(8):
